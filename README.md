@@ -1,4 +1,4 @@
-# A C# WebAPI minimal API - Multi Collection Implemtation
+# A C# WebAPI minimal API<br/>RAG Multi Collection Implemtation
 
 ## Routes
 
@@ -12,7 +12,7 @@
 
 ### DELETE - /api/memory
 
-- Delete a memoery by collection and key.
+- Delete a memory by collection and key.
 
 ### POST - /api/findnearest
 
