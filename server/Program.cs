@@ -51,34 +51,6 @@ app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(
 
 
 // Routes
-app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
-{
-    IAsyncEnumerable<MemoryQueryResult> queryResults =
-                kernel.Memory.SearchAsync(query.collection, query.query, limit: query.limit, minRelevanceScore: query.minRelevanceScore);
-
-    StringBuilder promptData = new StringBuilder();
-
-    await foreach (MemoryQueryResult r in queryResults)
-    {
-        promptData.Append(r.Metadata.Text + "\n\n");
-    }
-    var augmentedText = promptData.ToString();
-
-    const string ragFunctionDefinition = "{{$input}}\n\nText:\n\"\"\"{{$data}}\n\"\"\"";
-
-    var ragFunction = kernel.CreateSemanticFunction(ragFunctionDefinition, maxTokens: query.maxTokens);
-
-    var result = await kernel.RunAsync(ragFunction, new(query.query)
-    {
-        ["data"] = augmentedText
-    });
-    var completion = new Completion(query.query, result.ToString(), result.ModelResults.LastOrDefault()?.GetOpenAIChatResult()?.Usage);
-    return Results.Ok(completion);
-})
-.WithName("PostQuery")
-.WithOpenApi();
-
-
 app.MapGet("/api/gpt/memory", async (string collection, string key) =>
 {
     var mem = await memorySkill.RetrieveAsync(collection, key, logger: null);
@@ -125,6 +97,32 @@ app.MapDelete("/api/gpt/memory", async ([FromBody] Memory memory) =>
 .WithOpenApi();
 
 
+app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
+{
+    IAsyncEnumerable<MemoryQueryResult> queryResults =
+                kernel.Memory.SearchAsync(query.collection, query.query, limit: query.limit, minRelevanceScore: query.minRelevanceScore);
+
+    StringBuilder promptData = new StringBuilder();
+
+    await foreach (MemoryQueryResult r in queryResults)
+    {
+        promptData.Append(r.Metadata.Text + "\n\n");
+    }
+    var augmentedText = promptData.ToString();
+
+    const string ragFunctionDefinition = "{{$input}}\n\nText:\n\"\"\"{{$data}}\n\"\"\"";
+
+    var ragFunction = kernel.CreateSemanticFunction(ragFunctionDefinition, maxTokens: query.maxTokens);
+
+    var result = await kernel.RunAsync(ragFunction, new(query.query)
+    {
+        ["data"] = augmentedText
+    });
+    var completion = new Completion(query.query, result.ToString(), result.ModelResults.LastOrDefault()?.GetOpenAIChatResult()?.Usage);
+    return Results.Ok(completion);
+})
+.WithName("PostQuery")
+.WithOpenApi();
+
+
 app.Run();
-
-
