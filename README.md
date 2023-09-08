@@ -16,12 +16,12 @@ There are areas of concern that need to be taken into consideration in RAG patte
   -	Chunking large text sources into smaller pieces.
 - Embedding and vector DB storage
   - Embedding the text chunks (basically convert the text to a numerical vector representation)
-  - Saving the chunks in a vector DB. In SK, this is called a memory.
+  - Saving the chunks in a vector DB. In SK, the text and the text embedding is called a memory.
 - Working with Token Limits
   -	Token limitations in the LLM and embedding models.
 - Processing Prompt and completions
   -	Turning the query into an embedding
-  -	Comparing the query embedding against the vector DB embeddings returning the relevance scores.
+  -	Comparing the query embedding against the vector DB embeddings returning the relevance scores and requested limits.
   -	Using the text in the top relevant results to augment the prompt.
   -	Sending the prompt for completion with the original query and the augmented context.
 
