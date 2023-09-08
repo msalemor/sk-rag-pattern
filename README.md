@@ -18,13 +18,13 @@ record Completion(string query, string text, object? usage);
 
 The API allows for memories to be:
 
-- Insert memory
-- Recalled by collection name and memory ID
+- Insert
+- Recalled
 - Searched
   - For the passed query, find the nearest results by relevance and count limit
   - Augment the prompt with the embedded text result
   - Process the completion of the query and embedded text results
-- Deleted by collection name and memory ID
+- Deleted
 
 #### GET - /api/memory
 
