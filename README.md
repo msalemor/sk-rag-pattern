@@ -8,10 +8,13 @@ This is a straightforward implementation of a Semantic Kernel RAG pattern for mu
 
 The API allows for memories to be:
 
-- Inserted (ingestion),
-- Recalled (recalled by ID)
-- Searched (found nearest by relevance and limits)
-- Deleted (management)
+- Inserted by collection name and memory ID
+- Recalled by collection name and memory ID
+- Searched
+  - For the passed query, find the nearest results by relevance and count limit
+  - Augment the prompt with the embedded text result
+  - Process the completion of the query and embedded text results
+- Deleted by collection name and memory ID
 
 ### Routes
 
