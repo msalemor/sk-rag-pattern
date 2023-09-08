@@ -6,7 +6,7 @@
 
 This is a straightforward implementation of a Semantic Kernel RAG pattern for multiple collections, utilizing a C# minimal API. The implementation is based on the Semantic Kernel (SK) framework, where memories are implemented through an interface. This design allows for the interchangeability of memories with various connectors like Azure Search, PostgreSQL, DuckDB, and more. Additionally, each collection can represent different entities such as customers, business units, or areas.
 
-### Models
+### Payload Models
 
 ```c#
 record Memory(string collection, string key, string text);
@@ -29,19 +29,22 @@ The API allows for memories to be:
 #### GET - /api/memory
 
 - Get a memory by collection and key.
+- Parameters:
+  - Collection Name
+  - Memory ID
 
 #### POST - /api/memory
 
 - Insert a memory by collection, key, and blob.
-- Request Payload: Memory
+- Request Payload Model: Memory
 
 #### DELETE - /api/memory
 
 - Delete a memory by collection and key.
-- Request Payload: Memory
+- Request Payload Model: Memory
 
 #### POST - /api/findnearest
 
 - Find the nearest matches by query, relevance score, return limits and token size.
-- Request payload: Query
-- Response payload: Completion
+- Request payload Model: Query
+- Response payload Model: Completion
