@@ -14,37 +14,40 @@ record Query(string collection, string query, int maxTokens = 1000, int limit = 
 record Completion(string query, string text, object? usage);
 ```
 
+Memory: A record representing a memory with attributes including the collection it belongs to, a unique key, and associated text.
+Query: A record used for making queries, specifying the target collection, the query text, maximum token limits, result count limits, and minimum relevance score.
+
 ### Routes
 
 The API allows for memories to be:
 
-- Insert
-- Recalled
-- Searched
+- Recalled by collection name and ID
+- Insert by collection name and ID
+- Queried
   - For the passed query, find the nearest results by relevance and count limit
   - Augment the prompt with the embedded text result
   - Process the completion of the query and embedded text results
-- Deleted
+- Deleted by collection name and ID
 
-#### GET - /api/memory
+#### GET a memory - GET /api/memory
 
 - Get a memory by collection and key.
 - Parameters:
   - Collection Name
   - Memory ID
 
-#### POST - /api/memory
+#### Create a memory - POST /api/memory
 
 - Insert a memory by collection, key, and blob.
 - Request Payload Model: Memory
 
-#### DELETE - /api/memory
+#### DELETE a memory - /api/memory
 
 - Delete a memory by collection and key.
 - Request Payload Model: Memory
 
-#### POST - /api/findnearest
+#### Query the database - POST - /api/query
 
-- Find the nearest matches by query, relevance score, return limits and token size.
+- Find the nearest matches by query, relevance score, return limits, and token size.
 - Request payload Model: Query
 - Response payload Model: Completion
