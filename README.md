@@ -4,7 +4,28 @@
 
 ### Features
 
-This is a straightforward implementation of a Semantic Kernel RAG pattern for multiple collections, utilizing a C# minimal API. The implementation is based on the Semantic Kernel (SK) framework, where memories are implemented through an interface. This design allows for the interchangeability of memories with various connectors like Azure Search, PostgreSQL, DuckDB, Volatile Memory (RAM DB), and more. Additionally, each collection can represent different entities such as customers, business units, or areas.
+This repo includes a multi-collection RAG pattern implementation using C# minimal API and Semantic Kernel (SK). Through interfaces and configuration, SK supports different databases connectors like Azure Search, PostgreSQL, Duck DB, volatile memory (RAM DB), and others. As this implementation is multi-collection, each collection could represent different entities such as customers, business units, or areas. 
+
+There are areas of concern that need to be taken into consideration in RAG patterns such as:
+
+- Ingestion
+  -	Managing the sources (text, PDFs, images, etc.).
+  -	Extracting the text from the sources.
+  -	Maybe keeping track of the source locations (to quote references).
+- Text Chunking or smart chunking
+  -	Chunking large text sources into smaller pieces.
+- Embedding and vector DB storage
+  - Embedding the text chunks (basically convert the text to a numerical vector representation)
+  - Saving the chunks in a vector DB. In SK, this is called a memory.
+- Working with Token Limits
+  -	Token limitations in the LLM and embedding models.
+- Processing Prompt and completions
+  -	Turning the query into an embedding
+  -	Comparing the query embedding against the vector DB embeddings returning the relevance scores.
+  -	Using the text in the top relevant results to augment the prompt.
+  -	Sending the prompt for completion with the original query and the augmented context.
+
+
 
 ### Payload Models
 
