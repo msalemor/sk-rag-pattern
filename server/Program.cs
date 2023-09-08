@@ -51,7 +51,7 @@ app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(
 
 
 // Routes
-app.MapPost("/api/gpt/findnearest", async ([FromBody] Query query) =>
+app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
 {
     IAsyncEnumerable<MemoryQueryResult> queryResults =
                 kernel.Memory.SearchAsync(query.collection, query.query, limit: query.limit, minRelevanceScore: query.minRelevanceScore);
@@ -75,7 +75,7 @@ app.MapPost("/api/gpt/findnearest", async ([FromBody] Query query) =>
     var completion = new Completion(query.query, result.ToString(), result.ModelResults.LastOrDefault()?.GetOpenAIChatResult()?.Usage);
     return Results.Ok(completion);
 })
-.WithName("FindNearest")
+.WithName("PostQuery")
 .WithOpenApi();
 
 
