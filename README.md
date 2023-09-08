@@ -25,7 +25,7 @@ There are areas of concern that need to be taken into consideration in RAG patte
   -	Using the text in the top relevant results to augment the prompt.
   -	Sending the prompt for completion with the original query and the augmented context.
 
-
+In SK, a memory is on object that includes among other things an ID (could be a URL to the original document), text (generally a text chunk), and a text embedding. This API allows you to ingest, recall, query, and delete SK memories.
 
 ### Payload Models
 
