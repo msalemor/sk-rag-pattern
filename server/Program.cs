@@ -64,7 +64,7 @@ app.MapGet("/api/gpt/memory", async (string collection, string key) =>
 .WithName("GetMemory")
 .WithOpenApi();
 
-
+// Note: It is up to the calling application to implement the text extraction and chunking logic
 app.MapPost("/api/gpt/memory", async ([FromBody] Memory memory) =>
 {
     var mem = await memorySkill.RetrieveAsync(memory.collection, memory.key, logger: null);
