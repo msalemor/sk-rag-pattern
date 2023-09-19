@@ -61,7 +61,7 @@ app.MapGet("/api/gpt/memory", async (string collection, string key) =>
     var outmem = new Memory(collection, key, mem);
     return Results.Ok(outmem);
 })
-.WithName("PostMemory")
+.WithName("GetMemory")
 .WithOpenApi();
 
 
@@ -77,7 +77,7 @@ app.MapPost("/api/gpt/memory", async ([FromBody] Memory memory) =>
         text: memory.text);
     return Results.Ok(memory);
 })
-.WithName("GetMemory")
+.WithName("PostMemory")
 .WithOpenApi();
 
 
