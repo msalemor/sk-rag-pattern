@@ -28,11 +28,10 @@ During the final stage, the `ingestion` application sends a POST request to the 
 **Important:** This application can work with multiple collections. A Collection can be a logical boundary for RAG resources. In other words, you could have RAG resources across companies like in a SaaS application, across OU to separate content from different areas of a company, etc. Every API endpoint carries the `collection` parameter.
 <hr/>
 
-#### 1.4 Best practices at this stage
+#### 1.4 Best practices
 
-- Review and clean the extracted text
-- Test different combinations of chunk logic, chunk sizes
-  - A good starting point may be 1024K tokens
+- Review the extracted text and apply cleanup and reformatting if necessary
+
 
 ### 2.0 Query and Completion
 
@@ -46,7 +45,13 @@ During this stage, the user submits a query using the `frontend`. The frontend, 
 
 The augmented prompt is submitted to the OpenAI GPT endpoint for completion, and finally, the results of the completion are rendered to the user in the `frontend`.
 
-### Completion
+#### 2.3 Best practices
+
+- Use the playground to interate over different prompts (prompt engineering)
+- Test different combinations of chunking logic and chunk sizes
+  - A good starting point may be 1024K tokens
+- Involve SMEs in reviewing the recalled data against the queries
+- Apply quality and RAI baselines to the expected results
 
 ### Features
 
