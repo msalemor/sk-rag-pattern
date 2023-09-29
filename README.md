@@ -1,7 +1,5 @@
 # A C# WebAPI minimal API<br/>RAG pattern multi-collection implementation
 
-# RAG pattern
-
 ## RAG Pattern Stages
 
 ### 1.0 Ingestion
