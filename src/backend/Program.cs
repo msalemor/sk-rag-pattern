@@ -1,4 +1,5 @@
 using System.Text;
+using dotenv.net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.Memory.Sqlite;
@@ -14,29 +15,30 @@ builder.Services.AddCors();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Read settings
-var configuring = builder.Configuration;
-var deploymentName = configuring["AzureChatCompletionService:DeploymentName"];
-var endpoint = configuring["AzureChatCompletionService:Endpoint"];
-var apiKey = configuring["AzureChatCompletionService:ApiKey"];
-var adaDeploymentName = configuring["AzureTextEmbeddingGenerationService:DeploymentName"];
+// Read environment variables
+DotEnv.Load();
+var deploymentName = Environment.GetEnvironmentVariable("GPT_DEPLOYMENT_NAME") ?? "gpt";
+var adaDeploymentName = Environment.GetEnvironmentVariable("ADA_DEPLOYMENT_NAME") ?? "ada";
+var endpoint = Environment.GetEnvironmentVariable("GPT_ENDPOINT") ?? "";
+var apiKey = Environment.GetEnvironmentVariable("GPT_API_KEY") ?? "";
+var dbPath = Environment.GetEnvironmentVariable("DB_PATH") ?? "./vectors.sqlite";
 
 if (string.IsNullOrEmpty(deploymentName) || string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(adaDeploymentName))
 {
     Console.WriteLine("Missing configuration Azure Chat Completion Service or Azure Text Embedding Generation Service");
-    return;
+    Environment.Exit(1);
 }
 
 // Configure Semantic Kernel
-var sqliteStore = await SqliteMemoryStore.ConnectAsync("./vectors.sqlite");
+var sqliteStore = await SqliteMemoryStore.ConnectAsync(dbPath);
 IKernel kernel = new KernelBuilder()
     .WithAzureChatCompletionService(deploymentName, endpoint, apiKey)
     .WithAzureTextEmbeddingGenerationService(adaDeploymentName, endpoint, apiKey)
     .WithMemoryStorage(sqliteStore)
     .Build();
+
 var memorySkill = new TextMemorySkill(kernel.Memory);
 kernel.ImportSkill(memorySkill);
-
 
 // Build the WebApplication
 var app = builder.Build();
@@ -49,17 +51,15 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
-
 // Routes
 app.MapGet("/api/gpt/memory", async (string collection, string key) =>
 {
-    var mem = await memorySkill.RetrieveAsync(collection, key, logger: null);
-    if (string.IsNullOrEmpty(mem))
+    var skMemory = await memorySkill.RetrieveAsync(collection, key, loggerFactory: null);
+    if (string.IsNullOrEmpty(skMemory))
     {
         return Results.NotFound();
     }
-    var outmem = new Memory(collection, key, mem);
-    return Results.Ok(outmem);
+    return Results.Ok(new Memory(collection, key, skMemory));
 })
 .WithName("GetMemory")
 .WithOpenApi();
@@ -67,8 +67,8 @@ app.MapGet("/api/gpt/memory", async (string collection, string key) =>
 // Note: It is up to the calling application to implement the text extraction and chunking logic
 app.MapPost("/api/gpt/memory", async ([FromBody] Memory memory) =>
 {
-    var mem = await memorySkill.RetrieveAsync(memory.collection, memory.key, logger: null);
-    if (mem is not null)
+    var skMemory = await memorySkill.RetrieveAsync(memory.collection, memory.key, loggerFactory: null);
+    if (skMemory is not null)
     {
         await kernel.Memory.RemoveAsync(memory.collection, memory.key);
     }
@@ -79,7 +79,6 @@ app.MapPost("/api/gpt/memory", async ([FromBody] Memory memory) =>
 })
 .WithName("PostMemory")
 .WithOpenApi();
-
 
 app.MapDelete("/api/gpt/memory", async ([FromBody] Memory memory) =>
 {
@@ -96,7 +95,6 @@ app.MapDelete("/api/gpt/memory", async ([FromBody] Memory memory) =>
 .WithName("DeleteMemory")
 .WithOpenApi();
 
-
 app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
 {
     IAsyncEnumerable<MemoryQueryResult> queryResults =
@@ -110,19 +108,23 @@ app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
     }
     var augmentedText = promptData.ToString();
 
-    const string ragFunctionDefinition = "{{$input}}\n\nText:\n\"\"\"{{$data}}\n\"\"\"";
-
+    const string ragFunctionDefinition = "{{$input}}\n\nText:\n\"\"\"{{$data}}\n\"\"\"Use only the provided text.";
     var ragFunction = kernel.CreateSemanticFunction(ragFunctionDefinition, maxTokens: query.maxTokens);
-
     var result = await kernel.RunAsync(ragFunction, new(query.query)
     {
         ["data"] = augmentedText
     });
+
     var completion = new Completion(query.query, result.ToString(), result.ModelResults.LastOrDefault()?.GetOpenAIChatResult()?.Usage);
     return Results.Ok(completion);
 })
 .WithName("PostQuery")
 .WithOpenApi();
 
+// Serve static files from wwwroot folder
+app.UseStaticFiles();
+
+// automatically serve the index.html file
+app.MapFallbackToFile("index.html");
 
 app.Run();

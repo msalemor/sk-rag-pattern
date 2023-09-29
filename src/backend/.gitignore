@@ -1,0 +1,5 @@
+wwwroot/*
+bin
+obj
+.env
+*.bak
