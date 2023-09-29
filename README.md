@@ -12,7 +12,10 @@ Ingestion is the process of extracting the text from your source files, chunking
 
 The project `ingestion` is a C# console application that will read the files in the `data/` folder, and read the text in all the text files. 
 
+<hr/>
+
 **Note:** I kept this stage simple using only text files, but this process can be more complex by extracting text from different file types such as PDFs and Office files.
+<hr/>
 
 #### 1.2 Chunking
 
@@ -22,7 +25,10 @@ After extracting the text, the `ingestion` console application, will chunk the t
 
 During the final stage, the `ingestion` application sends a POST request to the server's `/api/gpt/memory` endpoint. This endpoint will take the chunk of text it has received, vectorize the text using ADA's OpenAI endpoint, and it will finally store the text chunk and vector in a vector database.
 
+<hr/> 
+
 **Important:** This application can work with multiple collections. A Collection can be a logical boundary for RAG resources. In other words, you could have RAG resources across companies like in a SaaS application, across OU to separate content from different areas of a company, etc. Every API endpoint carries the `collection` parameter.
+<hr/>
 
 #### 1.4 Best practices at this stage
 
