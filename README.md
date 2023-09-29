@@ -22,7 +22,7 @@ After extracting the text, the `ingestion` console application, will chunk the t
 
 During the final stage, the `ingestion` application sends a POST request to the server's `/api/gpt/memory` endpoint. This endpoint will take the chunk of text it has received, vectorize the text using ADA's OpenAI endpoint, and it will finally store the text chunk and vector in a vector database.
 
-**Important:** This application can work with multiple collections. A Collection can be a logical boundary for RAG resources. In Other words, you could have RAG resources across companies like in a SaaS application, across OU to separate content from different areas of a company, etc. Every API endpoint carries the `collection` parameter.
+**Important:** This application can work with multiple collections. A Collection can be a logical boundary for RAG resources. In other words, you could have RAG resources across companies like in a SaaS application, across OU to separate content from different areas of a company, etc. Every API endpoint carries the `collection` parameter.
 
 #### 1.4 Best practices at this stage
 
