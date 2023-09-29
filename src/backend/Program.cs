@@ -102,10 +102,19 @@ app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
 
     StringBuilder promptData = new StringBuilder();
 
+    var citations = new List<Citation>();
     await foreach (MemoryQueryResult r in queryResults)
     {
         promptData.Append(r.Metadata.Text + "\n\n");
+        var parts = r.Metadata.Id.Split("-");
+        if (!citations.Any(c => c.collection == query.collection && c.doc == parts[0]))
+        {
+            citations.Add(new Citation(query.collection, parts[0]));
+        }
     }
+    if (citations.Count == 0)
+        return Results.BadRequest();
+
     var augmentedText = promptData.ToString();
 
     const string ragFunctionDefinition = "{{$input}}\n\nText:\n\"\"\"{{$data}}\n\"\"\"Use only the provided text.";
@@ -115,7 +124,7 @@ app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
         ["data"] = augmentedText
     });
 
-    var completion = new Completion(query.query, result.ToString(), result.ModelResults.LastOrDefault()?.GetOpenAIChatResult()?.Usage);
+    var completion = new Completion(query.query, result.ToString(), result.ModelResults.LastOrDefault()?.GetOpenAIChatResult()?.Usage, citations);
     return Results.Ok(completion);
 })
 .WithName("PostQuery")
