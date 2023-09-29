@@ -1,4 +1,4 @@
-# A C# WebAPI minimal API<br/>RAG Multi Collection Implemtation
+# A C# WebAPI minimal API<br/>RAG Multi Collection Implementation
 
 # RAG pattern
 
