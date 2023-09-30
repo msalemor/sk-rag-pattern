@@ -12,8 +12,10 @@ TL;DR: This repository contains a C# implementation of a multi-collection RAG pa
 
 ## Ingesting Data
 
-Type: `make run`
-Type: `make ingest`
+You will need two shells:
+
+Shell 1 - Type: `make run`
+Shell 2 - Type: `make ingest`
 
 ## Running locally
 
