@@ -3,4 +3,4 @@ bin
 obj
 .env
 *.bak
-.sqlite
+*.sqlite
