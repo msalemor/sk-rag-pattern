@@ -9,8 +9,8 @@ graph LR;
 Frontend<--Query<br/>Result-->Backend
 Backend<--Query<br/>Limits<br/>Relevance<br/>Results-->VectorDB
 Backend<--Augmented Prompt<br/>Embedding<br/>Completion-->OpenAI
-Backend<--file name,Chunk-->Ingest
-Ingest<-->Data
+Backend<--file name<br/>and chunk-->Ingest
+Ingest<--Text-->Data[Files<br/>in folder]
 ```
 
 ### 1.0 Ingestion
