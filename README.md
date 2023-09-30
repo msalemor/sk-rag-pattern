@@ -101,7 +101,7 @@ record Completion(string query, string text, object? usage);
 Memory: A record representing a memory with attributes including the collection it belongs to, a unique key, and associated text.
 Query: A record used for making queries, specifying the target collection, the query text, maximum token limits, result count limits, and minimum relevance score.
 
-### Routes
+### 3.0 API Endpoints
 
 The API allows for memories to be:
 
