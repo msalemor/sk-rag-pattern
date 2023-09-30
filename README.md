@@ -36,6 +36,22 @@ Ingest<--Text-->Data[Files<br/>in folder]
 
 ## II. RAG Pattern Stages
 
+```mermaid
+graph LR;
+  subgraph Ingestion
+    A(Text Extraction)-->B(Text Chunking)-->C(Text Embedding)
+  end;
+  subgraph Grounding
+    Query--Embbed-->Search
+    Search(Search<br/>VectorDB)--Results-->Promt(Augment<br/>Prompt)
+  end;
+  Ingestion-->Grounding
+  subgraph Completion
+    AP(Augemented<br/>Prompt)--POST-->SCO(GPT<br/>Completion)
+  end;
+  Grounding-->Completion
+```
+
 ### 1.0 Ingestion
 
 Ingestion is the process of extracting the text from your source files, chunking, and vectorization the chunks, and saving the chunks to a vector database (sometimes this is called memorization).
@@ -64,36 +80,31 @@ During the final stage, the `ingestion` application sends a POST request to the 
 
 <hr/>
 
-#### 1.4 Best practices
+### 2.0 Grounding
 
-- Review the extracted text and apply cleanup and reformatting if necessary
-
-### 2.0 Query and Completion
-
-During this stage, the user submits a query, the relevant memory is recalled from the vector database against the query, and the prompt is augmented with the recalled data for completion.
-
-#### 2.1 Grounding the prompt
-
-During this stage, the user submits a query using the `frontend`. The frontend, in turn, sends a POST request to the server's `/api/gpt/query` endpoint. The API vectorizes the query and compares this vector against each chunk in the vector database. Those chunks having a high relevance are returned and used to augment the prompt together with the initial query. The POST query payload carries a response limit and minimum relevance helpful to more or less chunks with higher or lower relevance.
+During this stage, the user submits a query using the `frontend`. The `frontend`, in turn, sends a POST request to the server's `/api/gpt/query` endpoint. The API vectorizes the query and compares this vector against each chunk in the vector database. Those chunks having a high relevance are returned and used to augment the prompt together with the initial query. The POST query payload carries a response limit and minimum relevance helpful to more or less chunks with higher or lower relevance.
 
 <hr/>
 
 **[What is Grounding?](https://techcommunity.microsoft.com/t5/fasttrack-for-azure/grounding-llms/ba-p/3843857)** Grounding is the process of using large language models (LLMs) with information that is use-case specific, relevant, and not available as part of the LLM's trained knowledge.
 <hr/>
 
-#### 2.2 Process the completion
+### 3.0 Process the completion
 
 The augmented prompt is submitted to the OpenAI GPT endpoint for completion, and finally, the results of the completion are rendered to the user in the `frontend`.
 
-#### 2.3 Best practices
+## II. Best practices
 
-- Use the playground to interate over different prompts (prompt engineering)
+- Review the extracted text and apply cleanup and reformatting if necessary
+- Use the playground to iterate over different prompts (prompt engineering)
+- Take advantage of your model's token limits
+  - Be mindful to include the completion tokens in this analysis
 - Test different combinations of chunking logic and chunk sizes
   - A good starting point may be 1024K tokens
 - Involve SMEs in reviewing the recalled data against the queries
 - Apply quality and RAI baselines to the expected results
 
-## II. API Endpoints
+## III. API Endpoints
 
 The API allows for memories to be:
 
@@ -128,7 +139,7 @@ The API allows for memories to be:
 - Request payload Model: Query
 - Response payload Model: Completion
 
-## III. Server and API Payload Models
+## IV. Server and API Payload Models
 
 File: `src/backend/Models.cs`
 ```c#
