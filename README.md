@@ -65,6 +65,41 @@ The augmented prompt is submitted to the OpenAI GPT endpoint for completion, and
 - Involve SMEs in reviewing the recalled data against the queries
 - Apply quality and RAI baselines to the expected results
 
+### 3.0 API Endpoints
+
+The API allows for memories to be:
+
+- Recalled by collection name and ID
+- Insert by collection name and ID
+- Queried
+  - For the passed query, find the nearest results by relevance and count limit
+  - Augment the prompt with the embedded text result
+  - Process the completion of the query and embedded text results
+- Deleted by collection name and ID
+
+#### GET a memory - GET `/api/gpt/memory`
+
+- Get a memory by collection and key.
+- Parameters:
+  - Collection Name
+  - Memory ID
+
+#### Create a memory - POST `/api/gpt/memory`
+
+- Insert a memory by collection, key, and blob.
+- Request Payload Model: Memory
+
+#### DELETE a memory - `/api/gpt/memory`
+
+- Delete a memory by collection and key.
+- Request Payload Model: Memory
+
+#### Query the database - POST - `/api/gpt/query`
+
+- Find the nearest matches by query, relevance score, return limits, and token size.
+- Request payload Model: Query
+- Response payload Model: Completion
+
 ### Features
 
 This repo includes a multi-collection RAG pattern implementation using C# minimal API and Semantic Kernel (SK). Through interfaces and configuration, SK supports different database connectors like Azure Search, PostgreSQL, Duck DB, Redis, volatile memory (a RAM DB), and others. As this implementation is multi-collection, each collection could represent different entities such as customers, business units, or areas.
@@ -100,38 +135,3 @@ record Completion(string query, string text, object? usage);
 
 Memory: A record representing a memory with attributes including the collection it belongs to, a unique key, and associated text.
 Query: A record used for making queries, specifying the target collection, the query text, maximum token limits, result count limits, and minimum relevance score.
-
-### 3.0 API Endpoints
-
-The API allows for memories to be:
-
-- Recalled by collection name and ID
-- Insert by collection name and ID
-- Queried
-  - For the passed query, find the nearest results by relevance and count limit
-  - Augment the prompt with the embedded text result
-  - Process the completion of the query and embedded text results
-- Deleted by collection name and ID
-
-#### GET a memory - GET `/api/gpt/memory`
-
-- Get a memory by collection and key.
-- Parameters:
-  - Collection Name
-  - Memory ID
-
-#### Create a memory - POST `/api/gpt/memory`
-
-- Insert a memory by collection, key, and blob.
-- Request Payload Model: Memory
-
-#### DELETE a memory - `/api/gpt/memory`
-
-- Delete a memory by collection and key.
-- Request Payload Model: Memory
-
-#### Query the database - POST - `/api/gpt/query`
-
-- Find the nearest matches by query, relevance score, return limits, and token size.
-- Request payload Model: Query
-- Response payload Model: Completion
