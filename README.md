@@ -30,7 +30,7 @@ In SK, a memory is an object that includes among other things an ID (could be a 
 ```mermaid
 graph LR;
 Frontend<--Query<br/>Result-->Backend
-Backend<--Query<br/>Limits<br/>Relevance<br/>Results-->VectorDB
+Backend<--Query<br/>Limits<br/>Relevance<br/>Results-->VectorDB(Multi-Collection<br/>Vector DB)
 Backend<--Augmented Prompt<br/>Embedding<br/>Completion-->OpenAI
 Backend<--file name<br/>and chunk-->Ingest
 Ingest<--Text-->Data[Files<br/>in folder]
