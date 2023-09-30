@@ -1,13 +1,27 @@
-using System.Text;
+using backend.Services;
 using dotenv.net;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.Memory.Sqlite;
-using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Skills.Core;
 using server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Read environment variables
+var appSettings = new AppSettings();
+
+// Configure Semantic Kernel
+var sqliteStore = await SqliteMemoryStore.ConnectAsync(appSettings.DbPath);
+IKernel kernel = new KernelBuilder()
+    .WithAzureChatCompletionService(appSettings.GptDeploymentName, appSettings.Endpoint, appSettings.ApiKey)
+    .WithAzureTextEmbeddingGenerationService(appSettings.AdaDeploymentName, appSettings.Endpoint, appSettings.ApiKey)
+    .WithMemoryStorage(sqliteStore)
+    .Build();
+
+var memorySkill = new TextMemorySkill(kernel.Memory);
+kernel.ImportSkill(memorySkill);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -20,31 +34,9 @@ builder.Services.AddCors(opts =>
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// Read environment variables
-DotEnv.Load();
-var deploymentName = Environment.GetEnvironmentVariable("GPT_DEPLOYMENT_NAME") ?? "gpt";
-var adaDeploymentName = Environment.GetEnvironmentVariable("ADA_DEPLOYMENT_NAME") ?? "ada";
-var endpoint = Environment.GetEnvironmentVariable("GPT_ENDPOINT") ?? "";
-var apiKey = Environment.GetEnvironmentVariable("GPT_API_KEY") ?? "";
-var dbPath = Environment.GetEnvironmentVariable("DB_PATH") ?? "./vectors.sqlite";
-
-if (string.IsNullOrEmpty(deploymentName) || string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(adaDeploymentName))
-{
-    Console.WriteLine("Missing configuration Azure Chat Completion Service or Azure Text Embedding Generation Service");
-    Environment.Exit(1);
-}
-
-// Configure Semantic Kernel
-var sqliteStore = await SqliteMemoryStore.ConnectAsync(dbPath);
-IKernel kernel = new KernelBuilder()
-    .WithAzureChatCompletionService(deploymentName, endpoint, apiKey)
-    .WithAzureTextEmbeddingGenerationService(adaDeploymentName, endpoint, apiKey)
-    .WithMemoryStorage(sqliteStore)
-    .Build();
-
-var memorySkill = new TextMemorySkill(kernel.Memory);
-kernel.ImportSkill(memorySkill);
+builder.Services.AddSingleton(appSettings);
+builder.Services.AddSingleton(kernel);
+builder.Services.AddSingleton<SKService>();
 
 // Build the WebApplication
 var app = builder.Build();
@@ -57,80 +49,73 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
+var group = app.MapGroup("/api/gpt/v1");
+
 // Routes
-app.MapGet("/api/gpt/memory", async (string collection, string key) =>
+group.MapGet("/memory/{collection}/{key}", async (string collection, string key, SKService service) =>
 {
-    var skMemory = await memorySkill.RetrieveAsync(collection, key, loggerFactory: null);
-    if (string.IsNullOrEmpty(skMemory))
+    if (string.IsNullOrEmpty(collection) || string.IsNullOrEmpty(key))
+    {
+        return Results.BadRequest(new { message = "Missing required fields. Must include collection, and key." });
+    }
+    var (result, err) = await service.GetMemoryAsync(collection, key);
+    if (err is not null)
     {
         return Results.NotFound();
     }
-    return Results.Ok(new Memory(collection, key, skMemory));
+    return Results.Ok(result);
+    //return Results.Ok(new Memory(collection, key, result?.Metadata.Text, result?.Metadata.Description, result?.Metadata.AdditionalMetadata));
 })
 .WithName("GetMemory")
 .WithOpenApi();
 
-// Note: It is up to the calling application to implement the text extraction and chunking logic
-app.MapPost("/api/gpt/memory", async ([FromBody] Memory memory) =>
+group.MapPost("/memory", async ([FromBody] Memory memory, SKService service) =>
 {
-    var skMemory = await memorySkill.RetrieveAsync(memory.collection, memory.key, loggerFactory: null);
-    if (skMemory is not null)
+    if (string.IsNullOrEmpty(memory.text) || string.IsNullOrEmpty(memory.key) || string.IsNullOrEmpty(memory.collection))
     {
-        await kernel.Memory.RemoveAsync(memory.collection, memory.key);
+        return Results.BadRequest(new { message = "Missing required fields. Must include text, key, and collection." });
     }
-    await kernel.Memory.SaveInformationAsync(memory.collection,
-        id: memory.key,
-        text: memory.text);
+    var (result, err) = await service.SaveMemoryAsync(memorySkill, memory);
+    if (err is not null)
+    {
+        return Results.BadRequest(new { message = "Error saving memory." });
+    }
     return Results.Ok(memory);
 })
 .WithName("PostMemory")
 .WithOpenApi();
 
-app.MapDelete("/api/gpt/memory", async ([FromBody] Memory memory) =>
+group.MapGet("/collection", async (SKService service) =>
 {
-    try
+    var (collections, err) = await service.GetCollections();
+    if (err is not null)
     {
-        await kernel.Memory.RemoveAsync(memory.collection, memory.key);
+        return Results.NotFound(new { message = "Error getting collections." });
     }
-    catch
+    return Results.Ok(collections);
+})
+.WithName("GetCollections")
+.WithOpenApi();
+
+group.MapDelete("/memory", async ([FromBody] Memory memory, SKService service) =>
+{
+    var ex = await service.DeleteMemoryAsync(memory.collection, memory.key);
+    if (ex is not null)
     {
-        return Results.NotFound();
+        return Results.NotFound(new { message = "Error deleting memory." });
     }
     return Results.Ok(memory);
 })
 .WithName("DeleteMemory")
 .WithOpenApi();
 
-app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
+group.MapPost("/query", async ([FromBody] Query query, SKService service) =>
 {
-    IAsyncEnumerable<MemoryQueryResult> queryResults =
-                kernel.Memory.SearchAsync(query.collection, query.query, limit: query.limit, minRelevanceScore: query.minRelevanceScore);
-
-    StringBuilder promptData = new StringBuilder();
-
-    var citations = new List<Citation>();
-    await foreach (MemoryQueryResult r in queryResults)
+    var (completion, err) = await service.QueryAsync(query);
+    if (err is not null)
     {
-        promptData.Append(r.Metadata.Text + "\n\n");
-        var parts = r.Metadata.Id.Split("-");
-        if (!citations.Any(c => c.collection == query.collection && c.fileName == parts[0]))
-        {
-            citations.Add(new Citation(query.collection, parts[0]));
-        }
+        return Results.BadRequest(new { message = $"Error querying. {err.Message}" });
     }
-    if (citations.Count == 0)
-        return Results.BadRequest();
-
-    var augmentedText = promptData.ToString();
-
-    const string ragFunctionDefinition = "{{$input}}\n\nText:\n\"\"\"{{$data}}\n\"\"\"Use only the provided text.";
-    var ragFunction = kernel.CreateSemanticFunction(ragFunctionDefinition, maxTokens: query.maxTokens);
-    var result = await kernel.RunAsync(ragFunction, new(query.query)
-    {
-        ["data"] = augmentedText
-    });
-
-    var completion = new Completion(query.query, result.ToString(), result.ModelResults.LastOrDefault()?.GetOpenAIChatResult()?.Usage, citations);
     return Results.Ok(completion);
 })
 .WithName("PostQuery")
