@@ -2,6 +2,18 @@
 
 ## RAG Pattern Stages
 
+### Diagram
+
+```mermaid
+graph LR;
+Frontend<--Query-->Backend
+Backend<--Query<br/>Limits<br/>Relevance<br/>Results-->VectorDB
+Backend<--Augmented Prompt<br/>Embedding</br>Completion-->OpenAI
+Backend<--Chunk-->Ingest
+Ingest<-->Data
+```
+
+
 ### 1.0 Ingestion
 
 Ingestion is the process of extracting the text from your source files, chunking, and vectorization the chunks, and saving the chunks to a vector database (sometimes this is called memorization).
