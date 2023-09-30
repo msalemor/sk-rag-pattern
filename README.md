@@ -9,7 +9,7 @@ graph LR;
 Frontend<--Query-->Backend
 Backend<--Query<br/>Limits<br/>Relevance<br/>Results-->VectorDB
 Backend<--Augmented Prompt<br/>Embedding</br>Completion-->OpenAI
-Backend<--Chunk-->Ingest
+Backend<--file name,Chunk-->Ingest
 Ingest<-->Data
 ```
 
