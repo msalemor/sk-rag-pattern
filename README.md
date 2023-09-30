@@ -29,15 +29,15 @@ The project `ingestion` is a C# console application that will read the files in 
 
 #### 1.2 Chunking
 
-After extracting the text, the `ingestion` console application, will chunk the text using Semantic Kernel's text chunker. During this stage, the text is split into pieces that may span several paragraphs according to the requested size of the chunk. The size of the chunk is defined as a constant in the `ingestion` application.
+After extracting the text, the `ingestion` console application, chunks the text using Semantic Kernel's text chunker. During this stage, the text is split into pieces that may span several paragraphs according to the requested size of the chunk. The size of the chunk is defined as a constant `Chunk_Size` in the `ingestion` application.
 
 #### 1.3 Vectorization and storage
 
-During the final stage, the `ingestion` application sends a POST request to the server's `/api/gpt/memory` endpoint. This endpoint will take the chunk of text it has received, vectorize the text using ADA's OpenAI endpoint, and it will finally store the text chunk and vector in a vector database.
+During the final stage, the `ingestion` application sends a POST request to the server's `/api/gpt/memory` endpoint. This endpoint takes the chunk of text it has received, vectorizes the text using ADA's OpenAI endpoint, and finally stores the text chunk and vector in a vector database.
 
 <hr/>
 
-**Important:** This application can work with multiple collections. A Collection can be a logical boundary for RAG resources. In other words, you could have RAG resources across companies like in a SaaS application, across OU to separate content from different areas of a company, etc. Every API endpoint carries the `collection` parameter.
+**Important:** This application can work with multiple collections. A Collection can be a logical boundary for RAG resources. In other words, you could have RAG resources across companies like in a SaaS application, across OUs to separate content from different areas of a company, etc. Every API endpoint carries the `collection` parameter.
 
 <hr/>
 
