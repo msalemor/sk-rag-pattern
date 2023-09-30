@@ -6,7 +6,7 @@
 
 ```mermaid
 graph LR;
-Frontend<--Query-->Backend
+Frontend<--Query<br/>Result-->Backend
 Backend<--Query<br/>Limits<br/>Relevance<br/>Results-->VectorDB
 Backend<--Augmented Prompt<br/>Embedding</br>Completion-->OpenAI
 Backend<--file name,Chunk-->Ingest
