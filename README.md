@@ -23,9 +23,7 @@ There are areas of concern that need to be taken into consideration in RAG patte
 
 In SK, a memory is an object that includes among other things an ID (could be a URL to the original document), text (generally a text chunk), and a text embedding. This API allows you to ingest, recall, query, and delete SK memories.
 
-## RAG Pattern Stages
-
-### Diagram
+## Diagram
 
 ```mermaid
 graph LR;
@@ -35,6 +33,9 @@ Backend<--Augmented Prompt<br/>Embedding<br/>Completion-->OpenAI
 Backend<--file name<br/>and chunk-->Ingest
 Ingest<--Text-->Data[Files<br/>in folder]
 ```
+
+## RAG Pattern Stages
+
 
 ### 1.0 Ingestion
 
