@@ -101,7 +101,7 @@ Those chunks having a high relevance are returned and used to augment the prompt
 
 The augmented prompt is submitted to the OpenAI GPT endpoint for completion, and finally, the results of the completion are rendered to the user in the `frontend`.
 
-## II. Best practices
+## III. Best practices
 
 - Review the extracted text and apply cleanup and reformatting if necessary
 - Use the playground to iterate over different prompts (prompt engineering)
