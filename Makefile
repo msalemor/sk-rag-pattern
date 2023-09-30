@@ -6,6 +6,10 @@ clean:
 	rm -rf src/backend/wwwroot
 	mkdir -p src/backend/wwwroot
 
+ingest:
+	@echo "Ingesting data..."
+	cd src/ingestion && dotnet run .
+
 build-ui: clean
 	@echo "Building frontend..."
 	cd src/frontend && bun run build

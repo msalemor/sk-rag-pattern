@@ -1,6 +1,6 @@
 //import './App.css'
 
-import { createSignal } from "solid-js"
+import { For, createSignal } from "solid-js"
 import SolidMarkdown from "solid-markdown"
 
 interface ISettings {
@@ -13,7 +13,11 @@ interface ISettings {
 interface IMessage {
   query: string
   text: string
-  usage: any
+  usage: {
+    completionTokens: number
+    promptTokens: number
+    totalTokens: number
+  }
   citations: {
     collection: string
     fileName: string
@@ -39,7 +43,6 @@ const DefaultSettings: ISettings = {
 function App() {
   const [settings, setSettings] = createSignal(DefaultSettings)
   const [query, setQuery] = createSignal("")
-  const [completion] = createSignal("# This is some markdown")
   const [conversation, setConversation] = createSignal<IMessage[]>([])
 
   const sendQuery = async () => {
@@ -53,10 +56,11 @@ function App() {
     }
     const res = await fetch("/api/gpt/query", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify(payload)
     })
     const data = await res.json()
+    console.info(JSON.stringify(data, null, 2))
     setConversation([...conversation(), {
       query: query(),
       text: data.text,
@@ -114,12 +118,26 @@ function App() {
             >Search</button>
           </div>
           {/* TODO: Iterate over the array */}
-          <div class="p-2 bg-blue-200 w-[95%]">
-            Prompt
-          </div>
-          <div class="p-2 bg-blue-300 w-[95%] ml-auto">
-            <SolidMarkdown children={completion()} />
-          </div>
+          <For each={conversation()}>
+            {message => (
+              <>
+                <div class="p-2 bg-blue-200 w-[90%] rounded-md">{message.query}</div>
+                <div class="p-2 bg-blue-300 w-[90%] rounded-md ml-auto">
+                  <SolidMarkdown children={message.text} />
+                  <hr />
+                  <div class="flex flex-row flex-wrap justify-center">
+                    <For each={message.citations}>
+                      {citation => (
+                        <div class="p-2 bg-blue-400 mr-2">
+                          <a href={`/${citation.collection}/${citation.fileName}`}>{citation.fileName}</a>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+                </div>
+              </>
+            )}
+          </For>
         </div>
       </main>
     </>
