@@ -1,4 +1,4 @@
-# A C# WebAPI minimal API<br/>RAG pattern multi-collection implementation
+# A C# WebAPI Minimal API<br/>RAG pattern multi-collection implementation
 
 [Running and deploying this application](RUNME.md)
 
