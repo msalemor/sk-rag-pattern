@@ -102,7 +102,7 @@ The augmented prompt is submitted to the OpenAI GPT endpoint for completion, and
 - Take advantage of your model's token limits
   - Be mindful to include the completion tokens in this analysis
 - Test different combinations of chunking logic and chunk sizes
-  - A good starting point may be 1024K tokens
+  - A good starting point is 1024K tokens
 - Involve SMEs in reviewing the recalled data against the queries
 - Apply quality and RAI baselines to the expected results
 
