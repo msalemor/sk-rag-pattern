@@ -1,5 +1,28 @@
 # A C# WebAPI minimal API<br/>RAG pattern multi-collection implementation
 
+This repo includes a multi-collection RAG pattern implementation using C# minimal API and Semantic Kernel (SK). Through interfaces and configuration, SK supports different database connectors like Azure Search, PostgreSQL, Duck DB, Redis, volatile memory (a RAM DB), and others. As this implementation is multi-collection, each collection could represent different entities such as customers, business units, or areas.
+
+There are areas of concern that need to be taken into consideration in RAG patterns such as:
+
+- Ingestion
+  - Managing the sources (text, PDFs, images, etc.).
+  - Extracting the text from the sources.
+  - Maybe keeping track of the source locations (to quote references).
+- Text Chunking or smart chunking
+  - Chunking large text sources into smaller pieces.
+- Embedding and vector DB storage
+  - Embedding the text chunks (basically, convert the text to a numerical vector representation)
+  - Saving the chunks in a vector DB. In SK, the text and the text embedding are called a memory.
+- Working with Token Limits
+  - Token limitations in the LLM and embedding models.
+- Processing Prompt and completions
+  - Turning the query into an embedding
+  - Comparing the query embedding against the vector DB embeddings returning the relevance scores and requested limits.
+  - Using the text in the top relevant results to augment the prompt.
+  - Sending the prompt for completion with the original query and the augmented context.
+
+In SK, a memory is an object that includes among other things an ID (could be a URL to the original document), text (generally a text chunk), and a text embedding. This API allows you to ingest, recall, query, and delete SK memories.
+
 ## RAG Pattern Stages
 
 ### Diagram
@@ -102,28 +125,7 @@ The API allows for memories to be:
 
 ### Features
 
-This repo includes a multi-collection RAG pattern implementation using C# minimal API and Semantic Kernel (SK). Through interfaces and configuration, SK supports different database connectors like Azure Search, PostgreSQL, Duck DB, Redis, volatile memory (a RAM DB), and others. As this implementation is multi-collection, each collection could represent different entities such as customers, business units, or areas.
 
-There are areas of concern that need to be taken into consideration in RAG patterns such as:
-
-- Ingestion
-  - Managing the sources (text, PDFs, images, etc.).
-  - Extracting the text from the sources.
-  - Maybe keeping track of the source locations (to quote references).
-- Text Chunking or smart chunking
-  - Chunking large text sources into smaller pieces.
-- Embedding and vector DB storage
-  - Embedding the text chunks (basically, convert the text to a numerical vector representation)
-  - Saving the chunks in a vector DB. In SK, the text and the text embedding is called a memory.
-- Working with Token Limits
-  - Token limitations in the LLM and embedding models.
-- Processing Prompt and completions
-  - Turning the query into an embedding
-  - Comparing the query embedding against the vector DB embeddings returning the relevance scores and requested limits.
-  - Using the text in the top relevant results to augment the prompt.
-  - Sending the prompt for completion with the original query and the augmented context.
-
-In SK, a memory is on object that includes among other things an ID (could be a URL to the original document), text (generally a text chunk), and a text embedding. This API allows you to ingest, recall, query, and delete SK memories.
 
 ### Payload Models
 
