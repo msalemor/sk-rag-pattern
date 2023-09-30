@@ -14,18 +14,18 @@ TL;DR: This repository contains a C# implementation of a multi-collection RAG pa
 
 You will need two shells:
 
-Shell 1 - Type: `make run`
-Shell 2 - Type: `make ingest`
+- Shell 1 - Type: `make run`
+- Shell 2 - Type: `make ingest`
 
 ## Running locally
 
-Type: `make run`
+- Type: `make run`
 
 ## Running locally as a container
 
-Type: `make docker-run`
+- Type: `make docker-run`
 
 ## Deploying to Azure as a WebApp container
 
-Type: `make infra`
-Type: `make deploy`
+- Type: `make infra`
+- Type: `make deploy`
