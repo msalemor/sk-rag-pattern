@@ -23,7 +23,7 @@ There are areas of concern that need to be taken into consideration in RAG patte
 
 In SK, a memory is an object that includes among other things an ID (could be a URL to the original document), text (generally a text chunk), and a text embedding. This API allows you to ingest, recall, query, and delete SK memories.
 
-## Diagram
+## I. Diagram
 
 ```mermaid
 graph LR;
@@ -34,8 +34,7 @@ Backend<--file name<br/>and chunk-->Ingest
 Ingest<--Text-->Data[Files<br/>in folder]
 ```
 
-## RAG Pattern Stages
-
+## II. RAG Pattern Stages
 
 ### 1.0 Ingestion
 
@@ -89,7 +88,7 @@ The augmented prompt is submitted to the OpenAI GPT endpoint for completion, and
 - Involve SMEs in reviewing the recalled data against the queries
 - Apply quality and RAI baselines to the expected results
 
-### 3.0 API Endpoints
+## II. API Endpoints
 
 The API allows for memories to be:
 
@@ -101,34 +100,30 @@ The API allows for memories to be:
   - Process the completion of the query and embedded text results
 - Deleted by collection name and ID
 
-#### 3.1 GET a memory - GET `/api/gpt/memory`
+### 1.0 GET a memory - GET `/api/gpt/memory`
 
 - Get a memory by collection and key.
 - Parameters:
   - Collection Name
   - Memory ID
 
-#### 3.2 Create a memory - POST `/api/gpt/memory`
+### 2.0 Create a memory - POST `/api/gpt/memory`
 
 - Insert a memory by collection, key, and blob.
 - Request Payload Model: Memory
 
-#### 3.3 DELETE a memory - `/api/gpt/memory`
+### 3.0 DELETE a memory - `/api/gpt/memory`
 
 - Delete a memory by collection and key.
 - Request Payload Model: Memory
 
-#### 3.4 Query the database - POST - `/api/gpt/query`
+### 4.0 Query the database - POST - `/api/gpt/query`
 
 - Find the nearest matches by query, relevance score, return limits, and token size.
 - Request payload Model: Query
 - Response payload Model: Completion
 
-### Features
-
-
-
-### Payload Models
+## III. Payload Models
 
 ```c#
 record Memory(string collection, string key, string text);
