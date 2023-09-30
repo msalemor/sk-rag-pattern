@@ -1,5 +1,7 @@
 # A C# WebAPI minimal API<br/>RAG pattern multi-collection implementation
 
+[Running and deploying](RUNME.md)
+
 This repo includes a multi-collection RAG pattern implementation using C# minimal API and Semantic Kernel (SK). Through interfaces and configuration, SK supports different database connectors like Azure Search, PostgreSQL, Duck DB, Redis, volatile memory (a RAM DB), and others. As this implementation is multi-collection, each collection could represent different entities such as customers, business units, or areas.
 
 There are areas of concern that need to be taken into consideration in RAG patterns such as:
