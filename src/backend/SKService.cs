@@ -125,7 +125,7 @@ public class SKService
                 ["data"] = augmentedText
             });
 
-            var completion = new Completion(query.query, result.ToString(), null, citations);
+            var completion = new Completion(query.query, query.collection, result.ToString(), null, citations);
             return new Tuple<Completion?, Exception?>(completion, null);
 
         }

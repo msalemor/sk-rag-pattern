@@ -7,9 +7,10 @@ namespace ingestion;
 class Program
 {
     private const string Source_Folder = "../../data/";
-    private const string Endpoint = "http://localhost:5087/api/gpt/memory";
+    private const string Endpoint = "http://localhost:5087/api/gpt/v1/memory";
     private const int Chunk_size = 512;
-    private const string Collection_Name = "docs";
+    private const string HR_Subfolder = "HR";
+    private const string Engineering_Subfolder = "Engineering";
     static HttpClient client = new();
 
     static List<string> ChunkText(string content, int chunk_size)
@@ -21,7 +22,15 @@ class Program
 
     static void Main(string[] args)
     {
-        var fileParagraphs = ExtractParagraphsFromFilesInFolderAsync(Source_Folder).GetAwaiter().GetResult();
+        var fileParagraphs = ExtractParagraphsFromFilesInFolderAsync(Path.Combine(Source_Folder, HR_Subfolder)).GetAwaiter().GetResult();
+        ProcessParagraphs(fileParagraphs, HR_Subfolder);
+
+        fileParagraphs = ExtractParagraphsFromFilesInFolderAsync(Path.Combine(Source_Folder, Engineering_Subfolder)).GetAwaiter().GetResult();
+        ProcessParagraphs(fileParagraphs, Engineering_Subfolder);
+    }
+
+    static void ProcessParagraphs(List<Tuple<string, string>> fileParagraphs, string collection)
+    {
         foreach (var fileParagraph in fileParagraphs)
         {
             int count = 1;
@@ -30,7 +39,7 @@ class Program
             {
                 var payload = new
                 {
-                    collection = Collection_Name,
+                    collection = collection,
                     key = $"{fileParagraph.Item1}-{paragraphs.Count}-{count}",
                     text = paragraph
                 };

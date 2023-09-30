@@ -1,7 +1,10 @@
 //import './App.css'
 
-import { For, createSignal } from "solid-js"
+import { For, createEffect, createSignal } from "solid-js"
 import SolidMarkdown from "solid-markdown"
+
+const QUERY_ENDPOINT = "/api/gpt/v1/query"
+const COLLECTIONS_ENDPOINT = "/api/gpt/v1/collection"
 
 interface ISettings {
   max_tokens: string,
@@ -12,6 +15,7 @@ interface ISettings {
 
 interface IMessage {
   query: string
+  collection: string
   text: string
   usage: {
     completionTokens: number
@@ -41,20 +45,32 @@ const DefaultSettings: ISettings = {
 }
 
 function App() {
+
   const [settings, setSettings] = createSignal(DefaultSettings)
   const [query, setQuery] = createSignal("")
   const [conversation, setConversation] = createSignal<IMessage[]>([])
+  const [collections, setCollections] = createSignal<string[]>([])
+  const [selectedCollection, setSelectedCollection] = createSignal<string>("")
 
-  const sendQuery = async () => {
+  createEffect(async () => {
+    // Load collections
+    const res = await fetch(COLLECTIONS_ENDPOINT)
+    const data = await res.json()
+    setCollections(data)
+    if (data.length > 0)
+      setSelectedCollection(data[0])
+  })
+
+  const SendQuery = async () => {
     const payload: IQuery = {
-      collection: "docs",
+      collection: selectedCollection(),
       query: query(),
       maxTokens: parseInt(settings().max_tokens),
       temperature: parseFloat(settings().temperature),
       limit: parseInt(settings().limit),
       minRelevanceScore: parseFloat(settings().minRelevance)
     }
-    const res = await fetch("/api/gpt/query", {
+    const res = await fetch(QUERY_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify(payload)
@@ -63,6 +79,7 @@ function App() {
     console.info(JSON.stringify(data, null, 2))
     setConversation([...conversation(), {
       query: query(),
+      collection: data.collection,
       text: data.text,
       usage: data.usage,
       citations: data.citations
@@ -107,6 +124,22 @@ function App() {
       </nav>
       <main class="container mx-auto">
         <div class="p-3 flex flex-col w-full space-y-2">
+          <div>
+            <label class="text-sm font-semibold uppercase">Select an area:</label>
+          </div>
+          <div class="flex flex-row flex-wrap space-x-2">
+            <For each={collections()}>
+              {collection => (
+                <div class="bg-purple-700 p-2">
+                  <input type="radio" class="mr-1" value={collection}
+                    checked={selectedCollection() === collection}
+                    onClick={() => setSelectedCollection(collection)}
+                  />
+                  <label class="mr-2 text-white">{collection}</label>
+                </div>
+              )}
+            </For>
+          </div>
           <div class="flex flex-row">
             <textarea class="p-2 border w-[calc(100%-70px)] mr-[5px]" rows={5}
               placeholder="What is your question?"
@@ -114,7 +147,7 @@ function App() {
               onInput={e => setQuery(e.currentTarget.value)}
             />
             <button class="p-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-semibold w-[75px] ml-auto"
-              onClick={sendQuery}
+              onClick={SendQuery}
             >Search</button>
           </div>
           {/* TODO: Iterate over the array */}
@@ -123,12 +156,13 @@ function App() {
               <>
                 <div class="p-2 bg-blue-200 w-[90%] rounded-md">{message.query}</div>
                 <div class="p-2 bg-blue-300 w-[90%] rounded-md ml-auto">
+                  <div class="p-2 mt-1 mb-1 bg-purple-700 text-white font-semibold">{message.collection}</div>
                   <SolidMarkdown children={message.text} />
                   <hr />
                   <div class="flex flex-row flex-wrap justify-center p-2">
                     <For each={message.citations}>
                       {citation => (
-                        <div class="p-2 bg-blue-400 mr-2">
+                        <div class="p-2 m-1 bg-blue-400 mr-2">
                           <a href={`/${citation.collection}/${citation.fileName}`}>{citation.fileName}</a>
                         </div>
                       )}
@@ -143,6 +177,5 @@ function App() {
     </>
   )
 }
-
 
 export default App
