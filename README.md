@@ -39,11 +39,11 @@ Ingest<--Text-->Data[Files<br/>in folder]
 ```mermaid
 graph LR;
   subgraph Ingestion
-    A(Text Extraction)-->B(Text Chunking)-->C(Text Embedding)
+    A(Text Extraction)-->B(Text Chunking)-->C(Text Embedding)-->D(Vectorization<br/>and storage)
   end;
   subgraph Grounding
     Query--Embbed-->Search
-    Search(Search<br/>VectorDB)--Results-->Promt(Augment<br/>Prompt)
+    Search(Search<br/>the VectorDB)--Results-->Promt(Augment<br/>Prompt)
   end;
   Ingestion-->Grounding
   subgraph Completion
