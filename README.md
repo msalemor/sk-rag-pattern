@@ -123,13 +123,18 @@ The API allows for memories to be:
 - Request payload Model: Query
 - Response payload Model: Completion
 
-## III. Payload Models
+## III. Server and API Payload Models
 
+File: `src/backend/Models.cs`
 ```c#
 record Memory(string collection, string key, string text);
 record Query(string collection, string query, int maxTokens = 1000, int limit = 3, double minRelevanceScore = 0.77);
-record Completion(string query, string text, object? usage);
+record Completion(string query, string text, object? usage, List<Citation>? learnMore = null);
+record Citation(string collection, string doc);
 ```
 
-Memory: A record representing a memory with attributes including the collection it belongs to, a unique key, and associated text.
+<hr/>
+
+**Memory:** A record representing a memory with attributes including the collection it belongs to, a unique key, and associated text.
 Query: A record used for making queries, specifying the target collection, the query text, maximum token limits, result count limits, and minimum relevance score.
+<hr/>
