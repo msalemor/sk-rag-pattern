@@ -4,11 +4,28 @@ TL;DR: This repository contains a C# implementation of a multi-collection RAG pa
 
 ## Frontend
 
+- Bun javascript runtime and all-in-one tool
+- TailwindCSS
+- SolidJs
+- SolidJs Markdown
+
 ## Backend
+
+- .NET C# 7.0
+- Semantic Kernel
+- DotEnv
 
 ## Ingestion
 
 ## **Required** backend environment variables or .env file
+
+```bash
+GPT_DEPLOYMENT_NAME=<DEPLOYMENT_NAME>
+ADA_DEPLOYMENT_NAME=<DEPLOYMENT_NAME>
+GPT_ENDPOINT=https://<NAME>.openai.azure.com/
+GPT_API_KEY=<API_KEY>
+DB_PATH=./data/db/vectors.sqlite
+```
 
 ## Ingesting Data
 
