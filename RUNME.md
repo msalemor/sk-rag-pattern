@@ -68,11 +68,16 @@ The API allows for memories to be:
 ## IV. Server and API Payload Models
 
 File: `src/backend/Models.cs`
+
 ```c#
+// Used to store and recall a memory
 record Memory(string collection, string key, string text);
-record Query(string collection, string query, int maxTokens = 1000, int limit = 3, double minRelevanceScore = 0.77);
-record Completion(string query, string text, object? usage, List<Citation>? learnMore = null);
-record Citation(string collection, string doc);
+// The query request
+record Query(string collection, string query, int maxTokens = 1000, double temperature = 0.3, int limit = 3, double minRelevanceScore = 0.77);
+// The query response
+record Completion(string query, string text, object? usage, List<Citation>? citations = null);
+// Support record to add citations
+record Citation(string collection, string fileName);
 ```
 
 <hr/>
@@ -80,4 +85,3 @@ record Citation(string collection, string doc);
 **Memory:** A record representing a memory with attributes including the collection it belongs to, a unique key, and associated text.
 Query: A record used for making queries, specifying the target collection, the query text, maximum token limits, result count limits, and minimum relevance score.
 <hr/>
-
