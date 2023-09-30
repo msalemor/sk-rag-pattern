@@ -8,7 +8,7 @@ TL;DR: This repository contains a C# implementation of a multi-collection RAG pa
 
 ## Ingestion
 
-## Required backend environment variables or .env file
+## **Required** backend environment variables or .env file
 
 ## Ingesting Data
 
