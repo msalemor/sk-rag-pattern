@@ -10,6 +10,25 @@ interface ISettings {
   minRelevance: string
 }
 
+interface IMessage {
+  query: string
+  text: string
+  usage: any
+  citations: {
+    collection: string
+    fileName: string
+  }[]
+}
+
+interface IQuery {
+  collection: string
+  query: string
+  maxTokens: number
+  temperature: number
+  limit: number
+  minRelevanceScore: number
+}
+
 const DefaultSettings: ISettings = {
   max_tokens: "2000",
   temperature: "0.3",
@@ -21,6 +40,32 @@ function App() {
   const [settings, setSettings] = createSignal(DefaultSettings)
   const [query, setQuery] = createSignal("")
   const [completion] = createSignal("# This is some markdown")
+  const [conversation, setConversation] = createSignal<IMessage[]>([])
+
+  const sendQuery = async () => {
+    const payload: IQuery = {
+      collection: "docs",
+      query: query(),
+      maxTokens: parseInt(settings().max_tokens),
+      temperature: parseFloat(settings().temperature),
+      limit: parseInt(settings().limit),
+      minRelevanceScore: parseFloat(settings().minRelevance)
+    }
+    const res = await fetch("/api/gpt/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    const data = await res.json()
+    setConversation([...conversation(), {
+      query: query(),
+      text: data.text,
+      usage: data.usage,
+      citations: data.citations
+    }])
+    setQuery("")
+  }
+
   return (
     <>
       <nav class='p-2 bg-blue-950 text-white font-semibold text-lg'>
@@ -64,8 +109,11 @@ function App() {
               value={query()}
               onInput={e => setQuery(e.currentTarget.value)}
             />
-            <button class="p-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-semibold w-[75px] ml-auto">Search</button>
+            <button class="p-2 bg-blue-700 hover:bg-blue-600 text-white text-sm font-semibold w-[75px] ml-auto"
+              onClick={sendQuery}
+            >Search</button>
           </div>
+          {/* TODO: Iterate over the array */}
           <div class="p-2 bg-blue-200 w-[95%]">
             Prompt
           </div>

@@ -107,7 +107,7 @@ app.MapPost("/api/gpt/query", async ([FromBody] Query query) =>
     {
         promptData.Append(r.Metadata.Text + "\n\n");
         var parts = r.Metadata.Id.Split("-");
-        if (!citations.Any(c => c.collection == query.collection && c.doc == parts[0]))
+        if (!citations.Any(c => c.collection == query.collection && c.fileName == parts[0]))
         {
             citations.Add(new Citation(query.collection, parts[0]));
         }
