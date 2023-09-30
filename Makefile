@@ -1,5 +1,5 @@
 default:
-	@echo "Please specify a target to make."
+	@echo "Available commands are: run, ingest, docker, docker-run"
 
 clean:
 	rm -rf src/frontend/dist
