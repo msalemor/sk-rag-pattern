@@ -125,7 +125,7 @@ function App() {
                 <div class="p-2 bg-blue-300 w-[90%] rounded-md ml-auto">
                   <SolidMarkdown children={message.text} />
                   <hr />
-                  <div class="flex flex-row flex-wrap justify-center">
+                  <div class="flex flex-row flex-wrap justify-center p-2">
                     <For each={message.citations}>
                       {citation => (
                         <div class="p-2 bg-blue-400 mr-2">
