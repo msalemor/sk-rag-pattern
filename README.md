@@ -77,24 +77,24 @@ The API allows for memories to be:
   - Process the completion of the query and embedded text results
 - Deleted by collection name and ID
 
-#### GET a memory - GET `/api/gpt/memory`
+#### 3.1 GET a memory - GET `/api/gpt/memory`
 
 - Get a memory by collection and key.
 - Parameters:
   - Collection Name
   - Memory ID
 
-#### Create a memory - POST `/api/gpt/memory`
+#### 3.2 Create a memory - POST `/api/gpt/memory`
 
 - Insert a memory by collection, key, and blob.
 - Request Payload Model: Memory
 
-#### DELETE a memory - `/api/gpt/memory`
+#### 3.3 DELETE a memory - `/api/gpt/memory`
 
 - Delete a memory by collection and key.
 - Request Payload Model: Memory
 
-#### Query the database - POST - `/api/gpt/query`
+#### 3.4 Query the database - POST - `/api/gpt/query`
 
 - Find the nearest matches by query, relevance score, return limits, and token size.
 - Request payload Model: Query
