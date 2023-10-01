@@ -13,10 +13,10 @@ ingest:
 build-ui: clean
 	@echo "Building frontend..."
 	cd src/frontend && bun run build
+	cp -r src/frontend/dist/* src/backend/wwwroot/
 
 run: build-ui
-	@echo "Building frontend..."	
-	cp -r src/frontend/dist/* src/backend/wwwroot
+	@echo "Building frontend..."		
 	cd src/backend && dotnet watch run .
 
 docker: build-ui
@@ -25,7 +25,11 @@ docker: build-ui
 
 docker-run: docker
 	@echo "Running the image"
-	docker run --rm -p 8080:80 --env-file=.env am8850/skrag:dev
+	cd src/backend && docker run --rm -p 8080:80 --env-file=.env am8850/skragminimal:dev
+
+docker-push: docker
+	@echo "Running the image"
+	docker push am8850/skragminimal:dev
 
 infra:
 	@echo "Deploy infrastructure."

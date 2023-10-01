@@ -22,7 +22,7 @@ public class AppSettings
 
         if (string.IsNullOrEmpty(GptDeploymentName) || string.IsNullOrEmpty(Endpoint) || string.IsNullOrEmpty(ApiKey) || string.IsNullOrEmpty(AdaDeploymentName))
         {
-            Console.WriteLine("Missing configuration Azure Chat Completion Service or Azure Text Embedding Generation Service");
+            Console.WriteLine("Missing configuration. Please set GPT_DEPLOYMENT_NAME, ADA_DEPLOYMENT_NAME, GPT_ENDPOINT, GPT_API_KEY, and DB_PATH environment variables.");
             Environment.Exit(1);
         }
     }

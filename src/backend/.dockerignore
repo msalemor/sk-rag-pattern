@@ -3,4 +3,4 @@ obj
 .env*
 *.http
 appSettings.Development.json
-*.sqlite
+data/db/*

@@ -151,7 +151,7 @@ function App() {
               <>
                 <div class="p-2 bg-blue-200 w-[90%] rounded-md">{message.query}</div>
                 <div class="p-2 bg-blue-300 w-[90%] rounded-md ml-auto">
-                  <div class="p-2 mt-1 mb-1 bg-purple-700 text-white font-semibold">{(new Date(message.ts)).toLocaleString()}-{message.collection}</div>
+                  <div class="p-2 mt-1 mb-1 bg-purple-700 text-white font-semibold">{(new Date(message.ts)).toLocaleString()} - {message.collection}</div>
                   <SolidMarkdown children={message.text} />
                   <hr />
                   <div class="flex flex-row flex-wrap justify-center p-2">

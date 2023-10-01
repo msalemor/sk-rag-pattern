@@ -1,6 +1,4 @@
-﻿using System.Net.Mime;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using Microsoft.SemanticKernel.Text;
 
@@ -9,6 +7,7 @@ class Program
 {
     private const string Source_Folder = "../../data/docs/";
     private const string Endpoint = "http://localhost:5087/api/gpt/v1/memory";
+
     private const string RootURL = "https://alemoraoaist.z13.web.core.windows.net/docs/";
     private const int Chunk_size = 512;
     private const string HR_Subfolder = "HR";
