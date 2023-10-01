@@ -1,5 +1,7 @@
 using dotenv.net;
 
+namespace backend.Services;
+
 public class AppSettings
 {
     public string GptDeploymentName { get; private set; }

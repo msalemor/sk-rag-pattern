@@ -2,7 +2,7 @@ using System.Text;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Skills.Core;
-using server.Models;
+using backend.Models;
 
 namespace backend.Services;
 
@@ -47,7 +47,7 @@ public class SKService
         }
     }
 
-    public async Task<Tuple<string?, Exception?>> SaveMemoryAsync(TextMemorySkill memorySkill, Memory memory)
+    public async Task<Tuple<string?, Exception?>> SaveMemoryAsync(Memory memory)
     {
         if (string.IsNullOrEmpty(memory.key) || string.IsNullOrEmpty(memory.collection) || string.IsNullOrEmpty(memory.text))
         {
@@ -107,10 +107,11 @@ public class SKService
             {
                 promptData.Append(r.Metadata.Text + "\n\n");
                 var parts = r.Metadata.Id.Split("-");
-                if (!citations.Any(c => c.collection == query.collection && c.fileName == parts[0]))
+                var fileName = Path.GetFileName(parts[0]);
+                if (!citations.Any(c => c.collection == query.collection && c.fileName == fileName))
                 {
                     // By convention, this app will use the description field to store the URL
-                    citations.Add(new Citation(query.collection, parts[0], r.Metadata.Description));
+                    citations.Add(new Citation(query.collection, fileName, r.Metadata.Description, r.Metadata.AdditionalMetadata));
                 }
             }
             if (citations.Count == 0)

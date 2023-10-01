@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@solid-primitives/storage": "^2.1.1",
     "solid-js": "^1.7.8",
     "solid-markdown": "^1.2.2"
   },

@@ -1,11 +1,9 @@
-using backend.Services;
-using dotenv.net;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.Memory.Sqlite;
 using Microsoft.SemanticKernel.Skills.Core;
-using server.Models;
+using backend.Models;
+using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,7 +73,7 @@ group.MapPost("/memory", async ([FromBody] Memory memory, SKService service) =>
     {
         return Results.BadRequest(new { message = "Missing required fields. Must include text, key, and collection." });
     }
-    var (result, err) = await service.SaveMemoryAsync(memorySkill, memory);
+    var (result, err) = await service.SaveMemoryAsync(memory);
     if (err is not null)
     {
         return Results.BadRequest(new { message = "Error saving memory." });

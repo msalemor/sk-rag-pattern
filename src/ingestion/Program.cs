@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using Microsoft.SemanticKernel.Text;
@@ -6,8 +7,9 @@ using Microsoft.SemanticKernel.Text;
 namespace ingestion;
 class Program
 {
-    private const string Source_Folder = "../../data/";
+    private const string Source_Folder = "../../data/docs/";
     private const string Endpoint = "http://localhost:5087/api/gpt/v1/memory";
+    private const string RootURL = "https://alemoraoaist.z13.web.core.windows.net/docs/";
     private const int Chunk_size = 512;
     private const string HR_Subfolder = "HR";
     private const string Engineering_Subfolder = "Engineering";
@@ -35,13 +37,15 @@ class Program
         {
             int count = 1;
             var paragraphs = ChunkText(fileParagraph.Item2, Chunk_size);
-            foreach (var paragraph in paragraphs)
+            foreach (var text in paragraphs)
             {
                 var payload = new
                 {
-                    collection = collection,
+                    collection,
                     key = $"{fileParagraph.Item1}-{paragraphs.Count}-{count}",
-                    text = paragraph
+                    text,
+                    description = $"{RootURL}{collection}/{fileParagraph.Item1}",
+                    additionalMetadata = $"{RootURL}{collection}/{fileParagraph.Item1}"
                 };
                 var jsonContent = JsonSerializer.Serialize(payload);
                 var resp = client.PostAsync(new Uri(Endpoint), new StringContent(jsonContent, Encoding.UTF8, "application/json")).GetAwaiter().GetResult();
