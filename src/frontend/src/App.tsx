@@ -4,6 +4,7 @@ import { For, createEffect, createSignal } from "solid-js"
 import SolidMarkdown from "solid-markdown"
 import { IMessage, IQuery, ISettings } from "./components/interfaces"
 import { makePersisted } from "@solid-primitives/storage"
+import { Puff } from "solid-spinner"
 
 const QUERY_ENDPOINT = "/api/gpt/v1/query"
 const COLLECTIONS_ENDPOINT = "/api/gpt/v1/collection"
@@ -36,6 +37,7 @@ function App() {
   const SendQuery = async () => {
     setSearching(true)
     try {
+      // TODO: Put a spinner
       const payload: IQuery = {
         collection: selectedCollection(),
         query: query(),
@@ -44,7 +46,6 @@ function App() {
         limit: parseInt(settings().limit),
         minRelevanceScore: parseFloat(settings().minRelevance)
       }
-      setQuery("Searching ...\n\n" + query())
       const res = await fetch(QUERY_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -115,6 +116,9 @@ function App() {
           onClick={Reset}
           disabled={searching()}
         >Clear & Reset</button>
+        <div class={(searching() ? 'visible' : 'hidden')}>
+          <Puff color="white" width={20} height={20} />
+        </div>
       </nav>
       <main class="container mx-auto">
         <div class="p-3 flex flex-col w-full space-y-2">
