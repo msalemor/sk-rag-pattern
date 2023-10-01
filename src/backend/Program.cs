@@ -32,6 +32,7 @@ builder.Services.AddCors(opts =>
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 builder.Services.AddSingleton(appSettings);
 builder.Services.AddSingleton(kernel);
 builder.Services.AddSingleton<SKService>();
@@ -81,6 +82,22 @@ group.MapPost("/memory", async ([FromBody] Memory memory, SKService service) =>
     return Results.Ok(memory);
 })
 .WithName("PostMemory")
+.WithOpenApi();
+
+group.MapPost("/ingest", async ([FromBody] IngestRequest? request, SKService service) =>
+{
+    if (request is null || request.urls.Count == 0 || string.IsNullOrEmpty(request.collection))
+    {
+        return Results.BadRequest(new { message = "Missing required fields. The ingestion request must include the collection name and list of one or more urls." });
+    }
+    var (ingestedCount, err) = await service.IngestAsync(request);
+    if (err is not null)
+    {
+        return Results.BadRequest(new { message = $"Error ingesting. {err.Message}" });
+    }
+    return Results.Ok(new { ingestedCount });
+})
+.WithName("PostIngest")
 .WithOpenApi();
 
 group.MapGet("/collection", async (SKService service) =>

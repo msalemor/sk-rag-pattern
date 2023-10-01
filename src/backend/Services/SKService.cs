@@ -3,20 +3,78 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Skills.Core;
 using backend.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.SemanticKernel.Text;
 
 namespace backend.Services;
 
 public class SKService
 {
+    const int Chunk_size = 1024;
     private readonly IKernel kernel;
     private readonly ILogger<SKService> logger;
     private readonly ILoggerFactory loggerFactory;
+    private readonly HttpClient client;
 
-    public SKService(IKernel kernel, ILogger<SKService> logger, ILoggerFactory loggerFactory)
+    public SKService(IKernel kernel, ILogger<SKService> logger, ILoggerFactory loggerFactory, HttpClient client)
     {
         this.kernel = kernel;
         this.logger = logger;
         this.loggerFactory = loggerFactory;
+        this.client = client;
+    }
+
+    static List<string> ChunkText(string content, int chunk_size)
+    {
+        var lines = TextChunker.SplitPlainTextLines(content, chunk_size / 2);
+        // return paragraphs
+        return TextChunker.SplitPlainTextParagraphs(lines, chunk_size);
+    }
+
+    public async Task<Tuple<int, Exception?>> IngestAsync(IngestRequest? ingestion)
+    {
+        if (ingestion is null || string.IsNullOrEmpty(ingestion.collection) || ingestion.urls.Count == 0)
+        {
+            return new Tuple<int, Exception?>(0, new ArgumentException("Missing required fields. Must include collection and urls."));
+        }
+        var count = 0;
+        foreach (var url in ingestion.urls)
+        {
+            try
+            {
+                // Get the file name from the URL
+                var fileName = Path.GetFileName(url);
+
+                // Download the contents
+                var response = await client.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                {
+                    logger.LogError($"Error downloading {url}: {response.StatusCode}");
+                    continue;
+                }
+                // Chunk in paragraphs
+                var text = await response.Content.ReadAsStringAsync();
+                var paragraphs = ChunkText(text, Chunk_size);
+
+                // Save each paragraph as a memory
+                var totalParagraphs = paragraphs.Count();
+                var currentParagraph = 1;
+                foreach (var paragraph in paragraphs)
+                {
+                    var memory = new Memory(ingestion.collection, $"{fileName}-{totalParagraphs}-{currentParagraph}", paragraph, url);
+                    var (result, err) = await SaveMemoryAsync(memory);
+                    if (err is not null)
+                    {
+                        logger.LogError(err, $"Error saving memory for {url}");
+                    }
+                    currentParagraph++;
+                }
+                count++;
+
+            }
+            finally { }
+        }
+        return new Tuple<int, Exception?>(count, null);
     }
 
     public async Task<Tuple<IList<string>?, Exception?>> GetCollections()
