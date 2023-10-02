@@ -28,7 +28,7 @@ public class SKService
     {
         var lines = TextChunker.SplitPlainTextLines(content, chunk_size / 2);
         // return paragraphs
-        return TextChunker.SplitPlainTextParagraphs(lines, chunk_size);
+        return TextChunker.SplitPlainTextParagraphs(lines, chunk_size, chunk_size / 4);
     }
 
     public async Task<Tuple<int, Exception?>> IngestAsync(IngestRequest? ingestion)
@@ -52,6 +52,7 @@ public class SKService
                     logger.LogError($"Error downloading {url}: {response.StatusCode}");
                     continue;
                 }
+
                 // Chunk in paragraphs
                 var text = await response.Content.ReadAsStringAsync();
                 var paragraphs = ChunkText(text, Chunk_size);
@@ -70,7 +71,6 @@ public class SKService
                     currentParagraph++;
                 }
                 count++;
-
             }
             finally { }
         }

@@ -45,8 +45,8 @@ infra: build-ui
 	az webapp create --name $(APP_NAME) -g $(RG_NAME) --plan $(PLAN_NAME) --deployment-container-image-name am8850/skragminimal:dev
 
 ENDPOINT=<>
-GPT_DEPLOYMENT_NAME=<>
-ADA_DEPLOYMENT_NAME=<>
+GPT_DEPLOYMENT_NAME=<gpt>
+ADA_DEPLOYMENT_NAME=<ada>
 GPT_API_KEY=<>
 DB_PATH=<>
 appconf:
@@ -58,3 +58,8 @@ appconf:
 
 deploy: infra
 	@echo "Deploying the app."
+
+test:
+	cd src/backend\
+	dotnet build
+	
