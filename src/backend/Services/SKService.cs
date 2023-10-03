@@ -3,8 +3,9 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Skills.Core;
 using backend.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.SemanticKernel.Text;
+using Microsoft.SemanticKernel.Connectors.Memory.Sqlite;
+using Microsoft.SemanticKernel.Connectors.Memory.AzureCognitiveSearch;
 
 namespace backend.Services;
 
@@ -22,6 +23,31 @@ public class SKService
         this.logger = logger;
         this.loggerFactory = loggerFactory;
         this.client = client;
+    }
+
+    public static IKernel GetKernel(AppSettings settings)
+    {
+
+        var kernelBuilder = new KernelBuilder()
+                                        .WithAzureChatCompletionService(settings.GptDeploymentName, settings.Endpoint, settings.ApiKey)
+                                        .WithAzureTextEmbeddingGenerationService(settings.AdaDeploymentName, settings.Endpoint, settings.ApiKey);
+        
+        if (settings.MemoryProvider == AppSettings.MemorySource.SQLITE)
+        {
+            var sqliteStore = SqliteMemoryStore.ConnectAsync(settings.DbPath).Result;
+            kernelBuilder.WithMemoryStorage(sqliteStore).Build();
+        }
+        else if (settings.MemoryProvider == AppSettings.MemorySource.AZURECOGNITIVESEARCH)
+        {
+            var azureCognitiveSearchStore = new AzureCognitiveSearchMemoryStore(settings!.AzureCognitiveSearchEndpoint!, settings!.AzureCognitiveSearchApiKey!);
+            kernelBuilder.WithMemoryStorage(azureCognitiveSearchStore);
+        }
+
+        var kernel = kernelBuilder.Build();
+        var memorySkill = new TextMemorySkill(kernel.Memory);
+        kernel.ImportSkill(memorySkill);
+
+        return kernel;
     }
 
     static List<string> ChunkText(string content, int chunk_size)

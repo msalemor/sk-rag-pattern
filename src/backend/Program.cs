@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Connectors.Memory.Sqlite;
-using Microsoft.SemanticKernel.Skills.Core;
 using backend.Models;
 using backend.Services;
 
@@ -9,17 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Read environment variables
 var appSettings = new AppSettings();
-
-// Configure Semantic Kernel
-var sqliteStore = await SqliteMemoryStore.ConnectAsync(appSettings.DbPath);
-IKernel kernel = new KernelBuilder()
-    .WithAzureChatCompletionService(appSettings.GptDeploymentName, appSettings.Endpoint, appSettings.ApiKey)
-    .WithAzureTextEmbeddingGenerationService(appSettings.AdaDeploymentName, appSettings.Endpoint, appSettings.ApiKey)
-    .WithMemoryStorage(sqliteStore)
-    .Build();
-
-var memorySkill = new TextMemorySkill(kernel.Memory);
-kernel.ImportSkill(memorySkill);
+var kernel = SKService.GetKernel(appSettings);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -30,6 +17,8 @@ builder.Services.AddCors(opts =>
         builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
+//builder.Services.AddAuthentication().AddJwtBearer();
+//builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
@@ -39,6 +28,7 @@ builder.Services.AddSingleton<SKService>();
 
 // Build the WebApplication
 var app = builder.Build();
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 //Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -46,7 +36,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 var group = app.MapGroup("/api/gpt/v1");
 
@@ -67,6 +56,7 @@ group.MapGet("/memory/{collection}/{key}", async (string collection, string key,
 })
 .WithName("GetMemory")
 .WithOpenApi();
+//.RequireAuthorization();
 
 group.MapPost("/memory", async ([FromBody] Memory memory, SKService service) =>
 {
@@ -83,6 +73,7 @@ group.MapPost("/memory", async ([FromBody] Memory memory, SKService service) =>
 })
 .WithName("PostMemory")
 .WithOpenApi();
+//.RequireAuthorization();
 
 group.MapPost("/ingest", async ([FromBody] IngestRequest? request, SKService service) =>
 {
@@ -99,6 +90,7 @@ group.MapPost("/ingest", async ([FromBody] IngestRequest? request, SKService ser
 })
 .WithName("PostIngest")
 .WithOpenApi();
+//.RequireAuthorization();
 
 group.MapGet("/collection", async (SKService service) =>
 {
@@ -111,6 +103,8 @@ group.MapGet("/collection", async (SKService service) =>
 })
 .WithName("GetCollections")
 .WithOpenApi();
+//.RequireAuthorization();
+
 
 group.MapDelete("/memory", async ([FromBody] Memory memory, SKService service) =>
 {
@@ -123,6 +117,7 @@ group.MapDelete("/memory", async ([FromBody] Memory memory, SKService service) =
 })
 .WithName("DeleteMemory")
 .WithOpenApi();
+//.RequireAuthorization();
 
 group.MapPost("/query", async ([FromBody] Query query, SKService service) =>
 {
@@ -135,6 +130,7 @@ group.MapPost("/query", async ([FromBody] Query query, SKService service) =>
 })
 .WithName("PostQuery")
 .WithOpenApi();
+//.RequireAuthorization();
 
 // Serve static files from wwwroot folder
 app.UseStaticFiles();
