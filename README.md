@@ -70,11 +70,12 @@ The project `ingestion` is a C# console application that will read the files in 
 
 #### 1.2 Text chunking
 
-After extracting the text, the `ingestion` console application, chunks the text using Semantic Kernel's text chunker. During this stage, the text is split into pieces that may span several paragraphs according to the requested size of the chunk. The size of the chunk is defined as a constant `Chunk_Size` in the `ingestion` application.
+Text chunking is a technique that divides a text into smaller units, such as sentences, phrases, or words. The `ingestion` console application chunks the text extracted from files. The chunk size is determined by the `chunk_size` constant. 
+
 
 #### 1.3 Text vectorization and storage
 
-During the final stage, the `ingestion` application sends a POST request to the server's `/api/gpt/memory` endpoint. This endpoint takes the chunk of text it has received, vectorizes the text using the OpenAI `ADA` endpoint, and finally stores the text chunk and vector in a vector database. 
+During the final stage, the `ingestion` application sends a POST request to the server's `/api/gpt/memory` endpoint. This endpoint takes the chunk of text it has received and the file's URL, vectorizes the text using the OpenAI `ADA` endpoint, and finally stores the text chunk, file name, file URL, and vector in a vector database. 
 
 <hr/>
 
