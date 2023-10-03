@@ -6,8 +6,8 @@ import { IMessage, IQuery, ISettings } from "./components/interfaces"
 import { makePersisted } from "@solid-primitives/storage"
 import { Puff } from "solid-spinner"
 
-const QUERY_ENDPOINT = "/api/gpt/v1/query"
-const COLLECTIONS_ENDPOINT = "/api/gpt/v1/collection"
+const QUERY_ENDPOINT = import.meta.env.VITE_URL_QUERY
+const COLLECTIONS_ENDPOINT = import.meta.env.VITE_URL_COLLECTIONS
 
 const DefaultSettings: ISettings = {
   max_tokens: "2000",
