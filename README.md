@@ -17,6 +17,7 @@ There are areas of concern that need to be taken into consideration in RAG patte
   - Saving the chunks in a vector DB. In SK, the text and the text embedding are called a memory.
 - Working with Token Limits
   - Token limitations in the LLM and embedding models.
+  - In OpenAI GPT models, the token limits apply to both a prompt and completion. In other words, if the token limit is 2048, and the prompt is 1800 tokens, the maximum response can be 248 tokens.
 - Processing Prompt and completions
   - Turning the query into an embedding
   - Comparing the query embedding against the vector DB embeddings returning the relevance scores and requested limits.
