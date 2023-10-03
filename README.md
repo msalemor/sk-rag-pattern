@@ -70,7 +70,7 @@ The project `ingestion` is a C# console application that will read the files in 
 
 #### 1.2 Text chunking
 
-Text chunking is a technique that divides a text into smaller units, such as sentences, phrases, or words. The `ingestion` console application extracts the text from the files, chunks the text based on the `chun_size` constant and using Semantic Kernel's tokenier functions, and sends an API request to the `backend` to POST the file name, file URL, and Chunk text.
+Text chunking is a technique that divides a text into smaller units, such as sentences, phrases, or words. The `ingestion` console application extracts the text from the files, chunks the text based on the `chun_size` constant and using Semantic Kernel's chunker functions, and finally sends the API requests to the `backend` to POST the file name, file URL, and Chunk text.
 
 
 #### 1.3 Text vectorization and storage
