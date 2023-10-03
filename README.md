@@ -25,7 +25,7 @@ There are areas of concern that need to be taken into consideration in RAG patte
 
 In SK, a memory is an object that includes among other things an ID (could be a URL to the original document), text (generally a text chunk), and a text embedding. This API allows you to ingest, recall, query, and delete SK memories.
 
-## I. Diagram
+## I. Application Diagram
 
 ```mermaid
 graph LR;
